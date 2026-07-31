@@ -1,5 +1,8 @@
 import os
 import yfinance as yf
+
+# Vercel serverless has a read-only filesystem except for /tmp
+yf.set_tz_cache_location("/tmp/yfinance")
 import feedparser
 import urllib.parse
 import time
