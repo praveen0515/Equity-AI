@@ -44,7 +44,7 @@ def get_stock_data(ticker: str):
         
         # Fetch 6 months of historical data & meta info from Yahoo API
         url = f"https://query2.finance.yahoo.com/v8/finance/chart/{full_ticker}?range=6mo&interval=1d"
-        res = requests.get(url, headers=headers)
+        res = requests.get(url, headers=headers, timeout=5)
         res.raise_for_status()
         data = res.json()
         
@@ -87,7 +87,13 @@ def get_news(ticker: str):
     try:
         clean_ticker = ticker.replace(".NS", "").replace(".BO", "")
         query = urllib.parse.quote(f"{clean_ticker} stock news India")
-        feed = feedparser.parse(f"https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en")
+        
+        # We must use requests instead of feedparser direct URL to enforce a timeout!
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        res = requests.get(f"https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en", headers=headers, timeout=5)
+        res.raise_for_status()
+        
+        feed = feedparser.parse(res.text)
         
         formatted_news = []
         for entry in feed.entries[:10]:
