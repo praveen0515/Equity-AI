@@ -48,8 +48,11 @@ export default function App() {
       
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.detail || "Failed to fetch data. Please check the ticker symbol and try again.");
-      setLoading(false);
+      const status = err.response?.status ? `(HTTP ${err.response.status}) ` : '';
+      const detail = err.response?.data?.detail || err.message;
+      const htmlWarning = typeof err.response?.data === 'string' && err.response.data.includes('<html') ? ' - Vercel returned an HTML page (Routing issue)' : '';
+      setError(`Error: ${status}${detail}${htmlWarning}`);
+    } finally {setLoading(false);
       setAnalyzing(false);
     }
   };
