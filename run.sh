@@ -23,7 +23,7 @@ BACKEND_PID=$!
 
 # Start Frontend in the background
 echo -e "${GREEN}Starting React Frontend on port 5173...${NC}"
-cd ../frontend
+cd ..
 npm run dev &
 FRONTEND_PID=$!
 
