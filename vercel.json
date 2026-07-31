@@ -1,16 +1,18 @@
 {
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build"
+    },
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
+  ],
   "rewrites": [
     {
-      "source": "/api/stock/(.*)",
-      "destination": "/api/index"
-    },
-    {
-      "source": "/api/news/(.*)",
-      "destination": "/api/index"
-    },
-    {
-      "source": "/api/analyze",
-      "destination": "/api/index"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
     },
     {
       "source": "/(.*)",
