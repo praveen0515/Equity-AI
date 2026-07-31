@@ -56,9 +56,9 @@ export default function Dashboard({ stock }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
           { label: 'Market Cap', value: formatNumber(stock.market_cap), icon: PieChart },
-          { label: 'P/E Ratio', value: stock.pe_ratio ? stock.pe_ratio.toFixed(2) : 'N/A', icon: Activity },
-          { label: '52W High', value: `₹${stock['52_week_high']?.toLocaleString() || 'N/A'}`, icon: TrendingUp },
-          { label: '52W Low', value: `₹${stock['52_week_low']?.toLocaleString() || 'N/A'}`, icon: TrendingDown },
+          { label: 'P/E Ratio', value: typeof stock.pe_ratio === 'number' ? stock.pe_ratio.toFixed(2) : 'N/A', icon: Activity },
+          { label: '52W High', value: stock['52_week_high'] ? `₹${stock['52_week_high'].toLocaleString()}` : 'N/A', icon: TrendingUp },
+          { label: '52W Low', value: stock['52_week_low'] ? `₹${stock['52_week_low'].toLocaleString()}` : 'N/A', icon: TrendingDown },
         ].map((stat, idx) => (
           <motion.div variants={item} key={idx} className="glass-card">
             <div className="flex items-center gap-3 mb-2">
