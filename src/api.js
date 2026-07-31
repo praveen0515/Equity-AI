@@ -4,7 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || (window.location.hostname =
 
 export const fetchStockData = async (ticker) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/stock/${ticker}`);
+    const response = await axios.get(`${API_BASE_URL}/stock?ticker=${ticker}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching stock data:", error);
@@ -14,7 +14,7 @@ export const fetchStockData = async (ticker) => {
 
 export const fetchNewsData = async (ticker) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/news/${ticker}`);
+    const response = await axios.get(`${API_BASE_URL}/news?ticker=${ticker}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching news data:", error);
