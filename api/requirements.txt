@@ -1,6 +1,5 @@
 fastapi
 uvicorn[standard]
-yfinance
 anthropic
 python-dotenv
 requests

@@ -1,8 +1,5 @@
 import os
-import yfinance as yf
-
-# Vercel serverless has a read-only filesystem except for /tmp
-yf.set_tz_cache_location("/tmp/yfinance")
+import requests
 import feedparser
 import urllib.parse
 import time
@@ -38,36 +35,44 @@ def read_root():
 @app.get("/api/stock/{ticker}")
 def get_stock_data(ticker: str):
     try:
-        # Append .NS if not present, assuming NSE for Indian stocks
         full_ticker = ticker if ticker.endswith(".NS") or ticker.endswith(".BO") else f"{ticker}.NS"
-        stock = yf.Ticker(full_ticker)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         
-        info = stock.info
-        if 'regularMarketPrice' not in info and 'currentPrice' not in info:
-             raise HTTPException(status_code=404, detail="Stock data not found.")
+        # Fetch 6 months of historical data & meta info from Yahoo API
+        url = f"https://query2.finance.yahoo.com/v8/finance/chart/{full_ticker}?range=6mo&interval=1d"
+        res = requests.get(url, headers=headers)
+        res.raise_for_status()
+        data = res.json()
         
-        # Get historical data for the chart (last 6 months)
-        hist = stock.history(period="6mo")
+        result = data.get("chart", {}).get("result", [])
+        if not result:
+            raise HTTPException(status_code=404, detail="Stock data not found.")
+            
+        meta = result[0].get("meta", {})
+        timestamps = result[0].get("timestamp", [])
+        indicators = result[0].get("indicators", {}).get("quote", [{}])[0]
+        
         chart_data = []
-        for index, row in hist.iterrows():
-            chart_data.append({
-                "date": index.strftime('%Y-%m-%d'),
-                "close": row['Close'],
-                "high": row['High'],
-                "low": row['Low']
-            })
+        for i, ts in enumerate(timestamps):
+            if i < len(indicators.get("close", [])) and indicators["close"][i] is not None:
+                chart_data.append({
+                    "date": time.strftime('%Y-%m-%d', time.localtime(ts)),
+                    "close": indicators["close"][i],
+                    "high": indicators["high"][i],
+                    "low": indicators["low"][i]
+                })
 
         return {
             "ticker": full_ticker,
-            "name": info.get("shortName", ticker),
-            "sector": info.get("sector", "N/A"),
-            "industry": info.get("industry", "N/A"),
-            "current_price": info.get("currentPrice", info.get("regularMarketPrice")),
-            "market_cap": info.get("marketCap"),
-            "pe_ratio": info.get("trailingPE"),
-            "52_week_high": info.get("fiftyTwoWeekHigh"),
-            "52_week_low": info.get("fiftyTwoWeekLow"),
-            "summary": info.get("longBusinessSummary", ""),
+            "name": meta.get("longName", meta.get("symbol")),
+            "sector": "Indian Equities",
+            "industry": "Public Company",
+            "current_price": meta.get("regularMarketPrice"),
+            "market_cap": "N/A", # Yahoo chart API doesn't return market cap, but AI doesn't strictly need it to analyze trends
+            "pe_ratio": "N/A",
+            "52_week_high": meta.get("fiftyTwoWeekHigh"),
+            "52_week_low": meta.get("fiftyTwoWeekLow"),
+            "summary": "Data sourced directly from Yahoo Finance API.",
             "chart_data": chart_data
         }
     except Exception as e:
