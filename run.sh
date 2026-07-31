@@ -9,10 +9,10 @@ echo -e "${BLUE}Starting Indian AI Advisor...${NC}"
 
 # Start Backend in the background
 echo -e "${GREEN}Starting FastAPI Backend on port 8000...${NC}"
-cd backend
+cd api
 # Check if Anthropic key is set
 if grep -q "your-api-key-here" .env; then
-  echo -e "\n⚠️  WARNING: You have not set your Anthropic API Key in backend/.env."
+  echo -e "\n⚠️  WARNING: You have not set your Anthropic API Key in api/.env."
   echo "The AI analysis will return an error until you provide a valid key."
   echo "You can edit backend/.env to add it."
 fi
