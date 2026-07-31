@@ -22,8 +22,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Anthropic Client
-anthropic_client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY", ""))
+# Initialize Anthropic Client safely so it doesn't crash the entire API on boot if missing
+api_key = os.getenv("ANTHROPIC_API_KEY", "")
+try:
+    anthropic_client = anthropic.Anthropic(api_key=api_key) if api_key else None
+except Exception:
+    anthropic_client = None
 
 class TickerRequest(BaseModel):
     ticker: str
@@ -119,8 +123,8 @@ class AnalyzeRequest(BaseModel):
 
 @app.post("/api/analyze")
 def analyze_stock(request: AnalyzeRequest):
-    if not anthropic_client.api_key:
-        return {"analysis": "Anthropic API key not found in server environment. Please configure it to get real AI analysis."}
+    if not anthropic_client:
+        raise HTTPException(status_code=500, detail="Anthropic API Key is not configured in Vercel Environment Variables.")
     
     try:
         prompt = f"""
