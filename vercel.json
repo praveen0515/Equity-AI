@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/api/stock/(.*)",
-      "destination": "/api/index.py"
+      "destination": "/api/index"
     },
     {
       "source": "/api/news/(.*)",
-      "destination": "/api/index.py"
+      "destination": "/api/index"
     },
     {
       "source": "/api/analyze",
-      "destination": "/api/index.py"
+      "destination": "/api/index"
     },
     {
       "source": "/(.*)",
